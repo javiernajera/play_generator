@@ -1,0 +1,150 @@
+Airport
+Alley
+Art Gallery
+Art Studio                              
+Artist Colony                          
+Auto Junkyard
+Ancient Pyramid                  
+Animal Sanctuary                  
+Animal Shelter
+Animal Research Facility   
+Art Museum                           
+Aquarium
+Barber Shop                          
+Baseball Stadium                  
+Basement
+Beach                                      
+Beauty Salon                          
+Blood Bank
+Blood Drive                           
+Bookstore                                
+Botanical Garden
+Bridge                                     
+Buddhist Temple
+Cabin                                      
+Castle                                      
+Casino
+Cathedral                               
+Cave (Bat, Collapsed, Crystal)
+Cemetery                               
+Center for Disease Control Laboratory
+Cheap Hotel                          
+Chinatown (any city)            
+Church
+Circus                                     
+City Dump                              
+City Rooftop(s)
+City Street                             
+Coal Mine                                
+Coffee House
+College Dorm Room           
+Concert Hall                            
+Corporate Board Room
+Day Spa                                  
+Distillery
+Fairground                             
+Fishing Boat                           
+Floating Fish Factory
+Football Stadium                  
+Fort
+Garden                                    
+Graveyard                               
+Gymnasium
+Highway Rest Stop                
+Hospital                                  
+Hospital Board Room
+Insectarium                          
+Jazz Club
+Landfill                                   
+Lighthouse                             
+Logging Camp (Town)
+Mansion                                 
+Mannequin Factory              
+Medical Laboratory
+Mississippi River Barge      
+Mosque
+New Orleans during Mardi Gras
+Nuclear Reactor                     
+Nursing Home
+Observatory                           
+Opera House
+Palace                                     
+Park                                   
+Pet Grooming Salon
+Precious Metal Mine (Gold, Silver, Copper)                      
+Priory
+Prison                                     
+Police Station                       
+Pottery Studio
+Previously Undiscovered Island
+Previously Undiscovered Planet
+Principal’s Office
+Racetrack
+Rainforest                              
+Roadside Motel
+Roadkill Pickup Truck
+Salt Mine
+Sanitarium                             
+Schoolroom
+School Lab                             
+Secret Hideaway                   
+Sewer
+Shack                                      
+Shoeshine Stand                   
+Shopping Mall
+Small Town                           
+Spider Farm                           
+Steel Mill
+Steam Ship (or Boat)          
+Synagogue
+Temple
+Theater                                  
+Tower
+Trailer Park                           
+Train Graveyard                  
+Train Station
+Treehouse
+Wax Museum                       
+Wildlife Ranch                       
+Windmill
+Winery
+Woods                                      
+Worm Ranch
+Zoo	
+Famous Places:
+Alcatraz                                              
+Amazon Rain Forest
+Angkor Wat, Cambodia                  
+Buckingham Palace
+Death Valley                                      
+Disneyland
+Easter Island                                     
+Forbidden City
+Galapagos Islands                            
+Golden Gate Bridge
+Grand Canyon                                   
+Great Barrier Reef
+Great Wall                                          
+Hollywood
+Jerusalem                                           
+Kashmir Valley
+Machu Picchu                                   
+Mount Everest
+Nile                                                      
+Palace of Versailles
+Pike’s Peak                                         
+Pompeii
+Potala Palace, Tibet                         
+Pyramids of Giza and Great Sphinx
+Sahara Desert                                   
+Serengeti
+Sistine Chapel                                   
+Statue of Liberty
+Stonehenge                                        
+Taj Mahal
+Tombstone                                         
+Uffizi Gallery
+Valley of the Kings                           
+Venice (Canals)
+The White House                              
+Zen Garden of Kyoto
