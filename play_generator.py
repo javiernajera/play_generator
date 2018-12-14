@@ -1,4 +1,3 @@
-from nltk.corpus import wordnet
 import re
 import random
 import wikipedia as wiki
@@ -11,35 +10,14 @@ CHARACTER_NAMES = ["Kanye", "James", "Javier", "Llewllyn", "Erika", "Lizzi", "Xi
 CATEGORIES = ["NEWS", "POLITICS", "DONALD TRUMP", "FOOD", "SCIENCE", "SPORTS", "RELIGION", "FILM", "MUSIC", "SPONGEBOB"]
 NUM_CHARACTERS = 0
 
-
-def generate_famous_locations():
-    """This method generates a list of famous locations from the places.txt file"""
-
-    file = open("places.txt", "r")
-    places = open("places.txt", "r").read()
-    split_places = places.split("Famous Places:")
-    # TODO: don't forget to add function docstrings.
-    places_list = []
-    famous = False
-    for line in file.readlines():
-
-        if famous:
-            line = re.sub("\s\s+", "", line)
-            line = re.sub("\n+", "", line)
-            places_list.append(line)
-
-        elif "Famous" in line:
-            famous = True
-
-    return places_list
-
+"""*******************************EXTRACTING KNOWLEDGE***********************"""
 
 def extract_links(interest):
-"""
-extract_links uses a characters given interest to grab a list of url's
-to webpages that contain articles that are centered on the characters
-interest
-"""
+    """
+    extract_links uses a characters given interest to grab a list of url's
+    to webpages that contain articles that are centered on the characters
+    interest
+    """
     file = open("categories.txt", "r")
     delim = interest + ":"
     at_topic = False
@@ -78,6 +56,29 @@ def get_topics(interest):
                     topic_list.append(topic.label)
     return topic_list
 
+"""*******************************MARKOV CHAIN FUNCTIONS***********************"""
+def generate_contemporary_chain(interest):
+    """
+    This method generates a markov chain based on local knowledge that
+    I pulled from raw text of various different online articles.
+    """
+    file = open("url_text.txt", "r")
+    delim = interest + ":"
+    at_topic = False
+    text = ""
+    for line in file.readlines():
+        if "next_category" in line and at_topic:
+            break
+        elif at_topic:
+            if '~' not in line and len(line) != 1:
+                line = line.replace("\n", "")
+                text += line
+        elif delim in line:
+            at_topic = True
+    text = re.sub("\s\s+", " ", text)
+    text = text.replace('"',"")
+    chain = build_chain(text)
+    return chain
 
 def generate_informative_chain(interest):
     """
@@ -85,19 +86,23 @@ def generate_informative_chain(interest):
     are found by searching through the list of topics that are produced by
     the characters given interest.
     """
-    file = open("url_text.txt", "r")
-
-
     topics = get_topics(interest)
-
-
     num_articles = random.randint(3,5)
     while num_articles > 0:
         results = wiki.search(random.choice(topics))
-        page = wiki.page(random.choice(results))
+        found_page = False
+        #somtimes returns disambiguation error
+        while not found_page:
+            try:
+                page = wiki.page(random.choice(results))
+                found_page = True
+            except wiki.exceptions.DisambiguationError as e:
+                continue
+
 
         content = page.content.splitlines()
         knowledge = ""
+        #filtering some wikipedia data stuff out of the lines
         for line in content:
             if "== Notes ==" in line or "== References ==" in line:
                 break
@@ -113,14 +118,28 @@ def generate_informative_chain(interest):
     chain = build_chain(knowledge)
     return chain
 
+def generate_funnies():
+    """This function generates the markov chain from the formatted Conan jokes"""
+    file = open("conan_jokes.txt", "r")
+    text = ""
+    for line in file.readlines():
+        if len(line) != 1:
+            text += line
 
+    text = re.sub("\n+", "", text)
+    chain = build_chain(text)
+    return chain
     #return places_list
 def build_chain(text):
     """This method builds a first order markov chain with the given text."""
-
     markov_chain = {}
     index = 1
+    #this line is trying to remove words that happen to have a dot in
+    #between them
+    #text = re.sub(".*[\.].*", ".*[\.\s].*", text)
     text_arr = text.split(' ')
+
+
     for w in text_arr[index:]:
         prev_state = text_arr[index - 1]
         if prev_state in markov_chain:
@@ -138,10 +157,15 @@ def generate_chains(interests):
 
     informative_chains = {}
     contemporary_chains = {}
+    funny_chain = {}
     for key, interest in interests.items():
         informative_chains[key] = generate_informative_chain(interest)
-        #contemporary_chains[key] = generate_contemporary_chain()
-    return informative_chains
+        contemporary_chains[key] = generate_contemporary_chain(interest)
+
+    funny_chain = generate_funnies()
+    return informative_chains, contemporary_chains, funny_chain
+
+"""*******************************GENERATING PLAY SCRIPT***********************"""
 
 def generate_interests(characters):
     """This method just assigns intersts to each character based on the
@@ -168,53 +192,157 @@ def generate_setting():
             line = re.sub("\s\s+", "", line)
             line = re.sub("\n+", "", line)
             places_list.append(line)
-
-
-
     time = random.choice(["morning", "midday", "afternoon", "evening", "night"])
-
     place = random.choice(places_list)
-    print("I chose " + place)
-    return places_list
+    return (place, time)
 #def generate_chains(interests):
-def generate_dialogue(chain, word_count):
-    """this is used to create dialogue"""
-    
-    prev_word = random.choice(list(chain.keys()))
-    dialogue = prev_word + " "
-    #word_count = random.randint(35, 70)
-    while len(dialogue.split(' ')) < word_count:
+def generate_dialogue(chains, word_count_max, sample):
+    """this is used to create dialogue, it basically mixes up what sort of
+    phrases the characters are saying.  Sometimes a character will say something
+    informative about their interest or say something thats contemporary about
+    their interests"""
+    informative = chains[0]
+    contemporary = chains[1]
+    funnies = chains[2]
+    dialogue = ""
 
-        curr_word = random.choice(chain[prev_word])
-        dialogue += curr_word + " "
-        prev_word = curr_word
+
+    word_count = random.randint(word_count_max*.20, word_count_max)
+    for character in sample:
+        dialogue += character + ":\t"
+        randint = random.randint(0, 100)
+        if randint < 25:
+            dialogue += generate_lines(informative[character], word_count) + "\n\t"
+            dialogue += generate_lines(funnies, word_count)
+        elif randint < 50:
+            dialogue += generate_lines(contemporary[character], word_count)+ "\n\t"
+            dialogue += generate_lines(funnies, word_count)
+        elif randint < 60:
+            dialogue += generate_lines(contemporary[character], word_count)
+        elif randint < 70:
+            dialogue += generate_lines(informative[character], word_count)
+        elif randint < 80:
+            dialogue += generate_lines(contemporary[character], word_count)+ "\n\t"
+            dialogue += generate_lines(informative[character], word_count)
+        elif randint < 90:
+            dialogue += generate_lines(contemporary[character], word_count)+ "\n\t"
+            dialogue += generate_lines(informative[character], word_count)
+        else:
+            dialogue += generate_lines(funnies, word_count)
+        dialogue += "\n\n"
+
     return dialogue
 
+
+def get_character_sequence(characters):
+    """generates a sequence of character from character list"""
+    prev_character = random.choice(characters)
+    sequence = [prev_character]
+    rand_num = random.randint(6,13)
+    while rand_num > 0:
+        character = random.choice(characters)
+        if prev_character != character:
+            sequence.append(character)
+            rand_num -= 1
+            prev_character = character
+    return sequence
+
+def generate_lines(chain, word_count):
+    """uses markov chain and word_count to generate lines of dialogue"""
+
+    prev_word = random.choice(list(chain.keys()))
+    while '.' in prev_word and '."' in prev_word and ')' in prev_word:
+        print(prev_word)
+        prev_word = random.choice(list(chain.keys()))
+
+    prev_word.capitalize()
+    dialogue = prev_word + " "
+    #word_count = random.randint(35, 70)
+    break_limit = 7
+    count = 0
+    line_done = False
+    while not line_done:
+        if count % break_limit == 0 and count != 0:
+            dialogue += "\n"
+            dialogue += "\t"
+        found = False
+        #make sure that the key is actually in the dictionary
+        while not found:
+            try:
+                curr_word = random.choice(chain[prev_word])
+                found = True
+            except KeyError as error:
+                continue
+
+        dialogue += curr_word + " "
+        count += 1
+        if len(dialogue.split(' ')) >= word_count:
+            if '.' in curr_word:
+                line_done = True
+        prev_word = curr_word
+    print("choosing words")
+    return dialogue
+
+def generate_scene(characters, chains):
+    """Generates scene by randomly choosing location and places
+    depending on the characters and their corresponding markov
+    chains, it will also generate dialogue"""
+    setting_details = generate_setting()
+    setting = "Place: " + setting_details[0].upper() + " \nTime: " + setting_details[1].upper() + "\n\n"
+    char_list = get_character_sequence(characters)
+    print("creating dialogue")
+    scene = generate_dialogue(chains, 40, char_list)
+
+    # State the setting.
+    return setting + scene
+
+
+def generate_characters():
+    """returns a random sample of 4-7 characters from all possible characters"""
+    return random.sample(CHARACTER_NAMES, random.randint(4,7))
+
+
 def generate_play():
-    # Setup - organize this better later.
+    """this function generates a list of characters and assigns them all a specific
+    interest from the interests list. It then uses every characters interest to creates
+    three specific markov chains.  An informative chain, a contemporary chain, and a
+    funny chain that they all share.  It uses all these chains to create dialogue
+    that is specific to every characters interest, and it occasionally generates
+    dialogue from the funny chain to add in some comedy.  It suprisingly does a good
+    job at generating odd, but amusing dialogue."""
+
     characters = generate_characters()
     interests = generate_interests(characters)
     NUM_CHARACTERS = len(characters)
-    print(characters)
-    print(interests)
-    informative_chains = generate_chains(interests)
-    print(informative_chains)
-    print(generate_dialogue(informative_chains[characters[0]]))
-    '''
-    # TODO: include three-act structure?
-    num_scenes = random.randint(3, 8)
 
-    # TODO: generate title and be sure to name my system.
-    print('{0:^100}'.format("* * * TITLE GOES HERE * * *"))
-    print('{0:^100}'.format("* * * written by my awesome system * * *\n"))
 
-    for scene in range(num_scenes):
-        generate_scene(characters)
+    informative_chains, contemporary_chains, funny_chain = generate_chains(interests)
+    chains = [informative_chains, contemporary_chains, funny_chain]
+    num_scenes = random.randint(2, 4)
+    script = ""
+
+    """it will generate dialogue for a given number of scenes"""
+    while num_scenes > 0:
+        print("starting first scene")
+        character_set = random.sample(characters, random.randint(3, NUM_CHARACTERS))
+        script += generate_scene(characters, chains)
+        script += "\n"
+        if num_scenes != 1:
+            script += "*****************************NEXT SCENE****************************\n\n"
+        num_scenes -= 1
+
+
+
+    print('{0:^100}'.format("* * * Crude Experts * * *\n"))
+    print('{0:^100}'.format("* * * written by my awesome system * * *\n\n"))
+
+
+    print('{0:^100}'.format(script))
+
 
     print('{0:^100}'.format("FIN"))
-    '''
-def generate_characters():
-    return random.sample(CHARACTER_NAMES, 1)
+
+
 
 
 if __name__ == "__main__":
@@ -234,7 +362,7 @@ if __name__ == "__main__":
 
 
 
-
+"""**********************************STUFF I DIDN'T USE*********************"""
 
 
 
@@ -263,4 +391,27 @@ def generate_mood():
             syns = wordnet.synsets(place)
             print(syns[0].name())
 
+'''
+
+'''
+def generate_famous_locations():
+    """This method generates a list of famous locations from the places.txt file"""
+
+    file = open("places.txt", "r")
+    places = open("places.txt", "r").read()
+    split_places = places.split("Famous Places:")
+    # TODO: don't forget to add function docstrings.
+    places_list = []
+    famous = False
+    for line in file.readlines():
+
+        if famous:
+            line = re.sub("\s\s+", " ", line)
+            line = re.sub("\n+", "", line)
+            places_list.append(line)
+
+        elif "Famous" in line:
+            famous = True
+
+    return places_list
 '''
