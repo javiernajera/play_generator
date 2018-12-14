@@ -1,4 +1,5 @@
 import re
+
 import random
 import wikipedia as wiki
 import textrazor
@@ -333,7 +334,7 @@ def generate_play():
 
 
 
-    print('{0:^100}'.format("* * * Crude Experts * * *\n"))
+    print('{0:^100}'.format("* * * Joyful James * * *\n"))
     print('{0:^100}'.format("* * * written by my awesome system * * *\n\n"))
 
 
