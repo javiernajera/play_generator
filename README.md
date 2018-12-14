@@ -11,7 +11,8 @@ conversation between characters, that actively tries to reflect things the
 character might be interested in.
 
 ### Setup
-These are the imports and dependancies you need to run play_generator.py:
+This system was built using python 3.6. These are the imports and dependancies
+you need to run play_generator.py:
 
 * import re
 * import random
@@ -22,20 +23,17 @@ These are the imports and dependancies you need to run play_generator.py:
 
 you will also need to have these files in your directory:
 
-*conan_jokes.text
-url_text.txt
-play_generator.py
-places.txt
-categories.txt
-story_generator.py
-api_key.text*
+* conan_jokes.text
+* url_text.txt
+* play_generator.py
+* places.txt
+* categories.txt
+* story_generator.py
+* api_key.text
 
 
-This system was built using python 3.6
-
-NOTE: their is a bug in the system where when you run the program
+NOTE: there is a bug in the system where when you run the program
 it will not end, and I'm not sure what it could be!
-
 you run the program with this command:
 
 python3 play_generator.py
